@@ -222,6 +222,48 @@ export type Database = {
         }
         Relationships: []
       }
+      collection_jobs: {
+        Row: {
+          apify_run_id: string | null
+          country: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          niche: string | null
+          query: string | null
+          source: string
+          status: string
+          total_collected: number
+          updated_at: string
+        }
+        Insert: {
+          apify_run_id?: string | null
+          country?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          niche?: string | null
+          query?: string | null
+          source: string
+          status?: string
+          total_collected?: number
+          updated_at?: string
+        }
+        Update: {
+          apify_run_id?: string | null
+          country?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          niche?: string | null
+          query?: string | null
+          source?: string
+          status?: string
+          total_collected?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       raw_ad_imports: {
         Row: {
           created_at: string
