@@ -153,3 +153,46 @@ function Info({ label, value }: { label: string; value?: string | null }) {
     </div>
   );
 }
+
+type AdLike = {
+  days_running?: number | null;
+  variations_count?: number | null;
+  price_brl?: number | string | null;
+  landing_url?: string | null;
+  headline?: string | null;
+  cta?: string | null;
+};
+
+function SignalsChecklist({ ad }: { ad: AdLike }) {
+  const price = Number(ad.price_brl ?? 0);
+  const signals = [
+    { ok: (ad.days_running ?? 0) >= 7, label: `tempo ativo (${ad.days_running ?? 0}d)`, hint: "≥ 7 dias rodando" },
+    { ok: (ad.variations_count ?? 0) >= 2, label: `variações repetidas (${ad.variations_count ?? 0})`, hint: "≥ 2 variações ativas" },
+    { ok: price >= 9.9 && price <= 97, label: `low ticket detectado (R$ ${price.toFixed(2)})`, hint: "entre R$9,90 e R$97" },
+    { ok: !!ad.landing_url, label: "landing page ativa", hint: "URL de destino respondendo" },
+    { ok: !!(ad.headline && ad.cta), label: "clareza da oferta", hint: "headline + CTA presentes" },
+  ];
+  const hits = signals.filter((s) => s.ok).length;
+  return (
+    <div className="rounded-md border bg-background/40 p-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Sinais de validação detectados</p>
+        <span className="font-mono text-[11px] text-muted-foreground">{hits}/{signals.length}</span>
+      </div>
+      <ul className="space-y-1 text-xs">
+        {signals.map((s) => (
+          <li key={s.label} className="flex items-start gap-2">
+            <span className={`mt-1 size-1.5 shrink-0 rounded-full ${s.ok ? "bg-[color:var(--color-signal-high)]" : "bg-muted-foreground/40"}`} />
+            <div>
+              <span className={s.ok ? "text-foreground/90" : "text-muted-foreground line-through"}>{s.label}</span>
+              <span className="ml-1 text-muted-foreground/70">— {s.hint}</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p className="pt-1 text-[10px] text-muted-foreground/80">
+        Sinais indicam validação observada no mercado. Não são garantia de resultado nem afirmam que o anúncio é "vencedor".
+      </p>
+    </div>
+  );
+}
