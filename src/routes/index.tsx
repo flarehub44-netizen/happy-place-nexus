@@ -142,8 +142,7 @@ function Dashboard() {
                       <div className="line-clamp-1 text-xs text-muted-foreground">{ad.primary_text}</div>
                     </td>
                     <td className="px-3 py-2 text-foreground/80">
-                      {/* @ts-expect-error joined */}
-                      {ad.advertiser?.name ?? "—"}
+                      {(ad as { advertiser?: { name?: string } }).advertiser?.name ?? "—"}
                     </td>
                     <td className="px-3 py-2 text-foreground/70 capitalize">{ad.niche}</td>
                     <td className="px-3 py-2 font-mono text-xs uppercase text-foreground/70">{ad.platform}</td>
