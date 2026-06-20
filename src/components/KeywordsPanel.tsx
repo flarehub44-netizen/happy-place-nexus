@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, Clock, Repeat } from "lucide-react";
+import { Plus, Trash2, Clock, Repeat, Play, History } from "lucide-react";
 import {
   listTrackedKeywords, addTrackedKeyword, toggleTrackedKeyword, deleteTrackedKeyword,
+  runKeywordNow, listCronRuns,
 } from "@/lib/keywords.functions";
 
 const NICHES = ["emagrecimento","financas","relacionamento","espiritualidade","saude","beleza","culinaria","pets","educacao","marketing","desenvolvimento_pessoal","outros"];
@@ -19,9 +20,12 @@ export function KeywordsPanel() {
   const add = useServerFn(addTrackedKeyword);
   const toggle = useServerFn(toggleTrackedKeyword);
   const del = useServerFn(deleteTrackedKeyword);
+  const runNow = useServerFn(runKeywordNow);
+  const runs = useServerFn(listCronRuns);
   const qc = useQueryClient();
 
   const q = useQuery(queryOptions({ queryKey: ["tracked_keywords"], queryFn: () => list() }));
+  const qRuns = useQuery(queryOptions({ queryKey: ["cron_runs"], queryFn: () => runs(), refetchInterval: 30000 }));
 
   const [term, setTerm] = useState("");
   const [niche, setNiche] = useState("outros");
@@ -44,6 +48,17 @@ export function KeywordsPanel() {
     mutationFn: (id: string) => del({ data: { id } }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["tracked_keywords"] }),
   });
+  const mRun = useMutation({
+    mutationFn: (id: string) => runNow({ data: { id } }),
+    onSuccess: (r) => {
+      toast.success(`Coleta concluída: +${r.inserted} anúncios`);
+      qc.invalidateQueries({ queryKey: ["tracked_keywords"] });
+      qc.invalidateQueries({ queryKey: ["cron_runs"] });
+      qc.invalidateQueries({ queryKey: ["ads"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const rows = q.data ?? [];
 
