@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScoreBadge, RiskBadge, StatusBadge } from "./ScoreBadge";
 import { getAdDetail, analyzeAd } from "@/lib/ads.functions";
-import { Sparkles, ExternalLink, Loader2 } from "lucide-react";
+import { listCheckouts, scrapeCheckout } from "@/lib/collection.functions";
+import { Sparkles, ExternalLink, Loader2, ShoppingCart } from "lucide-react";
 
 export function AdDetailDialog({ adId, onOpenChange }: { adId: string | null; onOpenChange: (o: boolean) => void }) {
   const open = !!adId;
