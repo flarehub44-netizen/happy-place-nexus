@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScoreBadge, RiskBadge, StatusBadge } from "@/components/ScoreBadge";
 import { AdDetailDialog } from "@/components/AdDetailDialog";
 import { CollectionPanel } from "@/components/CollectionPanel";
+import { KeywordsPanel } from "@/components/KeywordsPanel";
 import { Radar, Search, TrendingUp, ShieldAlert, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -84,6 +85,8 @@ function Dashboard() {
         </p>
 
         <CollectionPanel />
+        <KeywordsPanel />
+
 
 
         {/* Filters */}
