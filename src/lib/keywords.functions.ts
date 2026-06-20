@@ -96,8 +96,13 @@ export const runKeywordNow = createServerFn({ method: "POST" })
   });
 
 export const listCronRuns = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin
+  const { createClient } = await import("@supabase/supabase-js");
+  const sb = createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_PUBLISHABLE_KEY!,
+    { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
+  );
+  const { data, error } = await sb
     .from("tracked_keywords")
     .select("id, term, source, last_run_at, last_status, last_inserted, frequency_hours, enabled")
     .not("last_run_at", "is", null)
