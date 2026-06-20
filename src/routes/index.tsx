@@ -85,6 +85,8 @@ function Dashboard() {
         </p>
 
         <CollectionPanel />
+        <KeywordsPanel />
+
 
 
         {/* Filters */}
