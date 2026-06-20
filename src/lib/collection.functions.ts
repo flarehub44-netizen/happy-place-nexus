@@ -125,21 +125,28 @@ export const collectAds = createServerFn({ method: "POST" })
         const mediaUrl = pickString(r.video_url, r.videoUrl, r.image_url, r.imageUrl);
         const thumb = pickString(r.thumbnail, r.thumbnailUrl, r.image);
 
-        const { error: adErr } = await supabaseAdmin.from("ads").insert({
-          advertiser_id: adv?.id ?? null,
-          raw_import_id: rawImport?.id ?? null,
-          platform: data.source,
-          format: mediaUrl?.includes(".mp4") ? "video" : "image",
-          niche: data.niche as Niche,
-          status: "detected",
-          headline,
-          primary_text: primaryText,
-          cta,
-          landing_url: landingUrl,
-          media_url: mediaUrl,
-          thumbnail_url: thumb,
-        });
-        if (!adErr) inserted += 1;
+        const { data: insertedAd, error: adErr } = await supabaseAdmin
+          .from("ads")
+          .insert({
+            advertiser_id: adv?.id ?? null,
+            raw_import_id: rawImport?.id ?? null,
+            platform: data.source,
+            format: mediaUrl?.includes(".mp4") ? "video" : "image",
+            niche: data.niche as Niche,
+            status: "detected",
+            headline,
+            primary_text: primaryText,
+            cta,
+            landing_url: landingUrl,
+            media_url: mediaUrl,
+            thumbnail_url: thumb,
+          })
+          .select("id, landing_url")
+          .single();
+        if (!adErr && insertedAd) {
+          inserted += 1;
+          insertedAds.push({ id: insertedAd.id, landing_url: insertedAd.landing_url });
+        }
       }
 
       await supabaseAdmin
@@ -147,7 +154,23 @@ export const collectAds = createServerFn({ method: "POST" })
         .update({ status: "done", total_collected: inserted })
         .eq("id", job.id);
 
-      return { ok: true, jobId: job.id, inserted };
+      // Enriquecimento em lote: analyzeAd + scrapeLandingPage (paralelismo limitado)
+      const { analyzeAd } = await import("@/lib/ads.functions");
+      const batch = insertedAds.slice(0, 30);
+      const concurrency = 4;
+      for (let i = 0; i < batch.length; i += concurrency) {
+        const chunk = batch.slice(i, i + concurrency);
+        await Promise.allSettled(
+          chunk.map(async (a) => {
+            try { await analyzeAd({ data: { id: a.id } }); } catch {}
+            if (a.landing_url) {
+              try { await scrapeLandingPage({ data: { adId: a.id } }); } catch {}
+            }
+          }),
+        );
+      }
+
+      return { ok: true, jobId: job.id, inserted, enriched: batch.length };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       await supabaseAdmin
