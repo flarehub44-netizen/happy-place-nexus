@@ -150,6 +150,14 @@ export function AdDetailDialog({ adId, onOpenChange }: { adId: string | null; on
               </div>
             ) : null}
 
+            <CheckoutSection
+              checkouts={checkoutsQ.data ?? []}
+              loading={checkoutsQ.isLoading}
+              onScrape={() => scrapeC.mutate()}
+              scraping={scrapeC.isPending}
+              hasUrl={!!ad.landing_url}
+            />
+
             <div className="flex items-center justify-end gap-2 border-t pt-3">
               <Button onClick={() => analyze.mutate()} disabled={analyze.isPending}>
                 {analyze.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Sparkles className="mr-2 size-4" />}
