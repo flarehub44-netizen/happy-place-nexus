@@ -222,6 +222,63 @@ export type Database = {
         }
         Relationships: []
       }
+      checkouts: {
+        Row: {
+          ad_id: string
+          checkout_url: string
+          created_at: string
+          has_upsell: boolean
+          id: string
+          installments_max: number | null
+          order_bumps: Json
+          payment_methods: string[]
+          platform: string | null
+          price_brl: number | null
+          price_original: number | null
+          producer_name: string | null
+          raw_html_hash: string | null
+          scarcity: Json
+          scraped_at: string
+          updated_at: string
+        }
+        Insert: {
+          ad_id: string
+          checkout_url: string
+          created_at?: string
+          has_upsell?: boolean
+          id?: string
+          installments_max?: number | null
+          order_bumps?: Json
+          payment_methods?: string[]
+          platform?: string | null
+          price_brl?: number | null
+          price_original?: number | null
+          producer_name?: string | null
+          raw_html_hash?: string | null
+          scarcity?: Json
+          scraped_at?: string
+          updated_at?: string
+        }
+        Update: {
+          ad_id?: string
+          checkout_url?: string
+          created_at?: string
+          has_upsell?: boolean
+          id?: string
+          installments_max?: number | null
+          order_bumps?: Json
+          payment_methods?: string[]
+          platform?: string | null
+          price_brl?: number | null
+          price_original?: number | null
+          producer_name?: string | null
+          raw_html_hash?: string | null
+          scarcity?: Json
+          scraped_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       collection_jobs: {
         Row: {
           apify_run_id: string | null
