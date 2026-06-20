@@ -166,6 +166,7 @@ export const collectAds = createServerFn({ method: "POST" })
             try { await analyzeAd({ data: { id: a.id } }); } catch {}
             if (a.landing_url) {
               try { await scrapeLandingPage({ data: { adId: a.id } }); } catch {}
+              try { await scrapeCheckout({ data: { adId: a.id } }); } catch {}
             }
           }),
         );
