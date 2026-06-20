@@ -80,33 +80,39 @@ export const analyzeAd = createServerFn({ method: "POST" })
     if (!ad) throw new Error("Anúncio não encontrado");
 
     const system = `Você é um analista de tráfego pago especializado em ofertas digitais de baixo ticket no Brasil (R$9,90 a R$97).
-Use linguagem técnica e neutra. Evite promessas. Use os termos: "sinais de validação", "potencial criativo", "oferta detectada", "risco de política", "padrão de mercado", "possível ângulo validado".
-NUNCA use: "anúncio vencedor garantido", "copie esse anúncio", "ROAS garantido", "resultado comprovado".
+Use linguagem técnica e neutra. NUNCA prometa resultado. NUNCA diga que um anúncio é "vencedor", "garantido" ou "comprovado".
+Trabalhe SEMPRE com "sinais de validação" observáveis: tempo ativo, repetição de variações, clareza da oferta, preço low ticket detectado, landing page ativa, consistência do ângulo.
+Use os termos: "sinais de validação", "potencial criativo", "oferta detectada", "risco de política", "padrão de mercado", "possível ângulo validado".
 Responda APENAS com JSON válido seguindo o schema solicitado.`;
 
-    const prompt = `Analise esta oferta detectada e devolva JSON:
+    const prompt = `Analise esta oferta detectada e devolva JSON. O signal_score deve refletir QUANTOS sinais de validação foram observados (não é previsão de vendas):
 {
- "signal_score": int 0-100 (sinais de validação),
- "potential_label": "baixo"|"médio"|"alto" (potencial criativo),
- "market_pattern": string curta (padrão de mercado),
- "policy_risk_level": "baixo"|"medio"|"alto" (risco de política),
+ "signal_score": int 0-100 (soma ponderada dos sinais de validação observados),
+ "potential_label": "baixo"|"médio"|"alto" (potencial criativo observado),
+ "market_pattern": string curta (padrão de mercado recorrente neste nicho),
+ "policy_risk_level": "baixo"|"medio"|"alto" (risco de política de anúncios),
  "policy_risk_notes": string curta,
  "detected_angle": string curta (possível ângulo validado),
- "ai_summary": 1-2 frases neutras,
- "ai_tags": [3-5 strings],
+ "ai_summary": 1-2 frases neutras descrevendo SINAIS, sem prometer resultado,
+ "ai_tags": [3-5 strings de sinais observados, ex: "tempo-ativo-alto", "low-ticket-claro", "lp-ativa"],
  "variations": [3 strings de headlines alternativos baseados no padrão observado]
 }
 
-Dados:
+Sinais de validação a considerar:
+- tempo ativo: ${ad.days_running} dias (≥7 é sinal forte)
+- variações repetidas: ${ad.variations_count} (≥2 indica teste validado)
+- preço low ticket: R$${ad.price_brl ?? "?"} (entre R$9,90 e R$97 é o alvo)
+- landing page: ${ad.landing_url ? "ativa" : "ausente"}
+- clareza da oferta: headline + CTA ${ad.headline && ad.cta ? "presentes" : "incompletos"}
+
+Dados do criativo:
 - Nicho: ${ad.niche}
 - Plataforma: ${ad.platform}
 - Formato: ${ad.format}
 - Headline: ${ad.headline ?? ""}
 - Texto: ${ad.primary_text ?? ""}
-- CTA: ${ad.cta ?? ""}
-- Preço: R$${ad.price_brl ?? "?"}
-- Dias rodando: ${ad.days_running}
-- Variações ativas: ${ad.variations_count}`;
+- CTA: ${ad.cta ?? ""}`;
+
 
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
