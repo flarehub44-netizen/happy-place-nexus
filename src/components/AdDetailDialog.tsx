@@ -14,6 +14,8 @@ export function AdDetailDialog({ adId, onOpenChange }: { adId: string | null; on
   const open = !!adId;
   const fetchDetail = useServerFn(getAdDetail);
   const runAnalyze = useServerFn(analyzeAd);
+  const fetchCheckouts = useServerFn(listCheckouts);
+  const runScrapeCheckout = useServerFn(scrapeCheckout);
   const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -22,11 +24,27 @@ export function AdDetailDialog({ adId, onOpenChange }: { adId: string | null; on
     enabled: open,
   });
 
+  const checkoutsQ = useQuery({
+    queryKey: ["checkouts", adId],
+    queryFn: () => fetchCheckouts({ data: { adId: adId! } }),
+    enabled: open,
+  });
+
   const analyze = useMutation({
     mutationFn: () => runAnalyze({ data: { id: adId! } }),
     onSuccess: () => {
       toast.success("Análise de IA atualizada");
       qc.invalidateQueries({ queryKey: ["ad-detail", adId] });
+      qc.invalidateQueries({ queryKey: ["ads"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const scrapeC = useMutation({
+    mutationFn: () => runScrapeCheckout({ data: { adId: adId! } }),
+    onSuccess: () => {
+      toast.success("Checkout raspado");
+      qc.invalidateQueries({ queryKey: ["checkouts", adId] });
       qc.invalidateQueries({ queryKey: ["ads"] });
     },
     onError: (e: Error) => toast.error(e.message),
