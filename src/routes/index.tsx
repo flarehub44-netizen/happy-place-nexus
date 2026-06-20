@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { ScoreBadge, RiskBadge, StatusBadge } from "@/components/ScoreBadge";
 import { AdDetailDialog } from "@/components/AdDetailDialog";
+import { CollectionPanel } from "@/components/CollectionPanel";
 import { Radar, Search, TrendingUp, ShieldAlert, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -81,6 +82,9 @@ function Dashboard() {
         <p className="text-xs text-muted-foreground">
           Nicho com mais ofertas detectadas: <span className="font-mono text-foreground/80">{topNiche}</span>
         </p>
+
+        <CollectionPanel />
+
 
         {/* Filters */}
         <section className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-card/40 p-3">
