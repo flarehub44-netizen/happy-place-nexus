@@ -14,7 +14,244 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ad_signal_history: {
+        Row: {
+          ad_id: string
+          id: string
+          recorded_at: string
+          signal_score: number
+        }
+        Insert: {
+          ad_id: string
+          id?: string
+          recorded_at?: string
+          signal_score: number
+        }
+        Update: {
+          ad_id?: string
+          id?: string
+          recorded_at?: string
+          signal_score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_signal_history_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_variations: {
+        Row: {
+          ad_id: string
+          created_at: string
+          generated_by: string
+          id: string
+          variation_text: string
+          variation_type: string
+        }
+        Insert: {
+          ad_id: string
+          created_at?: string
+          generated_by?: string
+          id?: string
+          variation_text: string
+          variation_type?: string
+        }
+        Update: {
+          ad_id?: string
+          created_at?: string
+          generated_by?: string
+          id?: string
+          variation_text?: string
+          variation_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_variations_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads: {
+        Row: {
+          ad_library_url: string | null
+          advertiser_id: string | null
+          ai_analyzed_at: string | null
+          ai_summary: string | null
+          ai_tags: string[] | null
+          created_at: string
+          cta: string | null
+          days_running: number
+          detected_angle: string | null
+          first_seen_at: string
+          format: Database["public"]["Enums"]["ad_format"]
+          headline: string | null
+          id: string
+          landing_url: string | null
+          last_seen_at: string
+          market_pattern: string | null
+          media_url: string | null
+          niche: Database["public"]["Enums"]["niche"]
+          platform: Database["public"]["Enums"]["ad_platform"]
+          policy_risk_level: string | null
+          policy_risk_notes: string | null
+          potential_label: string | null
+          price_brl: number | null
+          primary_text: string | null
+          raw_import_id: string | null
+          signal_score: number | null
+          status: Database["public"]["Enums"]["ad_status"]
+          thumbnail_url: string | null
+          updated_at: string
+          variations_count: number
+        }
+        Insert: {
+          ad_library_url?: string | null
+          advertiser_id?: string | null
+          ai_analyzed_at?: string | null
+          ai_summary?: string | null
+          ai_tags?: string[] | null
+          created_at?: string
+          cta?: string | null
+          days_running?: number
+          detected_angle?: string | null
+          first_seen_at?: string
+          format?: Database["public"]["Enums"]["ad_format"]
+          headline?: string | null
+          id?: string
+          landing_url?: string | null
+          last_seen_at?: string
+          market_pattern?: string | null
+          media_url?: string | null
+          niche?: Database["public"]["Enums"]["niche"]
+          platform?: Database["public"]["Enums"]["ad_platform"]
+          policy_risk_level?: string | null
+          policy_risk_notes?: string | null
+          potential_label?: string | null
+          price_brl?: number | null
+          primary_text?: string | null
+          raw_import_id?: string | null
+          signal_score?: number | null
+          status?: Database["public"]["Enums"]["ad_status"]
+          thumbnail_url?: string | null
+          updated_at?: string
+          variations_count?: number
+        }
+        Update: {
+          ad_library_url?: string | null
+          advertiser_id?: string | null
+          ai_analyzed_at?: string | null
+          ai_summary?: string | null
+          ai_tags?: string[] | null
+          created_at?: string
+          cta?: string | null
+          days_running?: number
+          detected_angle?: string | null
+          first_seen_at?: string
+          format?: Database["public"]["Enums"]["ad_format"]
+          headline?: string | null
+          id?: string
+          landing_url?: string | null
+          last_seen_at?: string
+          market_pattern?: string | null
+          media_url?: string | null
+          niche?: Database["public"]["Enums"]["niche"]
+          platform?: Database["public"]["Enums"]["ad_platform"]
+          policy_risk_level?: string | null
+          policy_risk_notes?: string | null
+          potential_label?: string | null
+          price_brl?: number | null
+          primary_text?: string | null
+          raw_import_id?: string | null
+          signal_score?: number | null
+          status?: Database["public"]["Enums"]["ad_status"]
+          thumbnail_url?: string | null
+          updated_at?: string
+          variations_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_advertiser_id_fkey"
+            columns: ["advertiser_id"]
+            isOneToOne: false
+            referencedRelation: "advertisers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ads_raw_import_id_fkey"
+            columns: ["raw_import_id"]
+            isOneToOne: false
+            referencedRelation: "raw_ad_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisers: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          handle: string | null
+          id: string
+          name: string
+          niche: Database["public"]["Enums"]["niche"]
+          page_url: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          handle?: string | null
+          id?: string
+          name: string
+          niche?: Database["public"]["Enums"]["niche"]
+          page_url?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          handle?: string | null
+          id?: string
+          name?: string
+          niche?: Database["public"]["Enums"]["niche"]
+          page_url?: string | null
+        }
+        Relationships: []
+      }
+      raw_ad_imports: {
+        Row: {
+          created_at: string
+          external_id: string | null
+          id: string
+          payload: Json
+          platform: Database["public"]["Enums"]["ad_platform"]
+          processed: boolean
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          payload: Json
+          platform?: Database["public"]["Enums"]["ad_platform"]
+          processed?: boolean
+          source?: string
+        }
+        Update: {
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          payload?: Json
+          platform?: Database["public"]["Enums"]["ad_platform"]
+          processed?: boolean
+          source?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +260,28 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      ad_format: "image" | "video" | "carousel" | "text"
+      ad_platform: "meta" | "tiktok" | "youtube" | "kwai" | "other"
+      ad_status:
+        | "detected"
+        | "analyzing"
+        | "validated"
+        | "attention"
+        | "risk"
+        | "archived"
+      niche:
+        | "emagrecimento"
+        | "financas"
+        | "relacionamento"
+        | "espiritualidade"
+        | "saude"
+        | "beleza"
+        | "culinaria"
+        | "pets"
+        | "educacao"
+        | "marketing"
+        | "desenvolvimento_pessoal"
+        | "outros"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +408,31 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      ad_format: ["image", "video", "carousel", "text"],
+      ad_platform: ["meta", "tiktok", "youtube", "kwai", "other"],
+      ad_status: [
+        "detected",
+        "analyzing",
+        "validated",
+        "attention",
+        "risk",
+        "archived",
+      ],
+      niche: [
+        "emagrecimento",
+        "financas",
+        "relacionamento",
+        "espiritualidade",
+        "saude",
+        "beleza",
+        "culinaria",
+        "pets",
+        "educacao",
+        "marketing",
+        "desenvolvimento_pessoal",
+        "outros",
+      ],
+    },
   },
 } as const
