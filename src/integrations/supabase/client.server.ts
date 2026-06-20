@@ -7,14 +7,17 @@ import type { Database } from './types';
 
 function createSupabaseAdminClient() {
   const SUPABASE_URL = process.env.SUPABASE_URL;
-  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Lovable reserves the SUPABASE_ prefix; for externally connected Supabase projects
+  // store the service role key under SB_SERVICE_ROLE_KEY (fallback to SUPABASE_SERVICE_ROLE_KEY when injected).
+  const SUPABASE_SERVICE_ROLE_KEY =
+    process.env.SB_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     const missing = [
       ...(!SUPABASE_URL ? ['SUPABASE_URL'] : []),
-      ...(!SUPABASE_SERVICE_ROLE_KEY ? ['SUPABASE_SERVICE_ROLE_KEY'] : []),
+      ...(!SUPABASE_SERVICE_ROLE_KEY ? ['SB_SERVICE_ROLE_KEY'] : []),
     ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Connect Supabase in Lovable Cloud.`;
+    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Add SB_SERVICE_ROLE_KEY as a secret (copy from Supabase Dashboard → Project Settings → API → service_role).`;
     console.error(`[Supabase] ${message}`);
     throw new Error(message);
   }
