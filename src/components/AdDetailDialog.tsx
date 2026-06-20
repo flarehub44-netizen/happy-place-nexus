@@ -223,3 +223,79 @@ function SignalsChecklist({ ad }: { ad: AdLike }) {
     </div>
   );
 }
+
+type CheckoutRow = {
+  id: string;
+  platform: string | null;
+  checkout_url: string;
+  price_brl: number | string | null;
+  price_original: number | string | null;
+  installments_max: number | null;
+  has_upsell: boolean;
+  order_bumps: unknown;
+  scarcity: { timer?: boolean; stock?: boolean; social_proof?: boolean } | null;
+  payment_methods: string[] | null;
+  producer_name: string | null;
+  scraped_at: string;
+};
+
+function CheckoutSection({
+  checkouts, loading, onScrape, scraping, hasUrl,
+}: {
+  checkouts: CheckoutRow[]; loading: boolean; onScrape: () => void; scraping: boolean; hasUrl: boolean;
+}) {
+  const latest = checkouts[0];
+  return (
+    <div className="rounded-md border bg-background/40 p-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          Monitoramento de checkout {latest?.platform ? `· ${latest.platform}` : ""}
+        </p>
+        <Button size="sm" variant="outline" onClick={onScrape} disabled={scraping || !hasUrl}>
+          {scraping ? <Loader2 className="mr-2 size-3 animate-spin" /> : <ShoppingCart className="mr-2 size-3" />}
+          {latest ? "Re-raspar" : "Raspar checkout"}
+        </Button>
+      </div>
+      {loading && <p className="text-xs text-muted-foreground">Carregando…</p>}
+      {!loading && !latest && (
+        <p className="text-xs text-muted-foreground">
+          {hasUrl ? "Nenhum snapshot ainda. Rode o scraper para detectar preço, bumps e upsell." : "Sem URL de destino para raspar."}
+        </p>
+      )}
+      {latest && (
+        <>
+          <div className="grid gap-2 text-xs sm:grid-cols-3">
+            <Info label="preço atual" value={latest.price_brl ? `R$ ${Number(latest.price_brl).toFixed(2)}` : null} />
+            <Info label="preço de" value={latest.price_original ? `R$ ${Number(latest.price_original).toFixed(2)}` : null} />
+            <Info label="parcelas" value={latest.installments_max ? `até ${latest.installments_max}x` : null} />
+            <Info label="upsell" value={latest.has_upsell ? "detectado" : "—"} />
+            <Info label="order bumps" value={Array.isArray(latest.order_bumps) ? String(latest.order_bumps.length) : "0"} />
+            <Info label="pagamento" value={latest.payment_methods?.join(", ") || null} />
+          </div>
+          {latest.scarcity && (latest.scarcity.timer || latest.scarcity.stock || latest.scarcity.social_proof) && (
+            <div className="flex flex-wrap gap-1 pt-1">
+              {latest.scarcity.timer && <Badge variant="outline" className="text-[10px]">timer</Badge>}
+              {latest.scarcity.stock && <Badge variant="outline" className="text-[10px]">estoque limitado</Badge>}
+              {latest.scarcity.social_proof && <Badge variant="outline" className="text-[10px]">prova social</Badge>}
+            </div>
+          )}
+          {checkouts.length > 1 && (
+            <details className="pt-2">
+              <summary className="cursor-pointer text-[11px] text-muted-foreground hover:text-foreground">
+                histórico ({checkouts.length} snapshots)
+              </summary>
+              <ul className="mt-1 space-y-1 text-xs">
+                {checkouts.map((c) => (
+                  <li key={c.id} className="flex justify-between font-mono text-muted-foreground">
+                    <span>{new Date(c.scraped_at).toLocaleString("pt-BR")}</span>
+                    <span>{c.price_brl ? `R$ ${Number(c.price_brl).toFixed(2)}` : "—"}</span>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
