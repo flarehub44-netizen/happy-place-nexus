@@ -77,8 +77,11 @@ export function AdDetailDialog({ adId, onOpenChange }: { adId: string | null; on
 
               <div className="space-y-3 text-sm">
                 <p className="leading-relaxed text-foreground/90">{ad.primary_text}</p>
+
+                <SignalsChecklist ad={ad} />
+
                 <div className="rounded-md border bg-background/40 p-3 space-y-2">
-                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Sinais de validação (IA)</p>
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Leitura da IA (sinais, não garantia)</p>
                   <p className="text-foreground/90">{ad.ai_summary || "Ainda não analisado pela IA."}</p>
                   <div className="grid gap-2 text-xs sm:grid-cols-2">
                     <Info label="potencial criativo" value={ad.potential_label} />
