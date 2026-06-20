@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, Clock, Repeat } from "lucide-react";
+import { Plus, Trash2, Clock, Repeat, Play, History } from "lucide-react";
 import {
   listTrackedKeywords, addTrackedKeyword, toggleTrackedKeyword, deleteTrackedKeyword,
+  runKeywordNow, listCronRuns,
 } from "@/lib/keywords.functions";
 
 const NICHES = ["emagrecimento","financas","relacionamento","espiritualidade","saude","beleza","culinaria","pets","educacao","marketing","desenvolvimento_pessoal","outros"];
@@ -19,9 +20,12 @@ export function KeywordsPanel() {
   const add = useServerFn(addTrackedKeyword);
   const toggle = useServerFn(toggleTrackedKeyword);
   const del = useServerFn(deleteTrackedKeyword);
+  const runNow = useServerFn(runKeywordNow);
+  const runs = useServerFn(listCronRuns);
   const qc = useQueryClient();
 
   const q = useQuery(queryOptions({ queryKey: ["tracked_keywords"], queryFn: () => list() }));
+  const qRuns = useQuery(queryOptions({ queryKey: ["cron_runs"], queryFn: () => runs(), refetchInterval: 30000 }));
 
   const [term, setTerm] = useState("");
   const [niche, setNiche] = useState("outros");
@@ -44,6 +48,17 @@ export function KeywordsPanel() {
     mutationFn: (id: string) => del({ data: { id } }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["tracked_keywords"] }),
   });
+  const mRun = useMutation({
+    mutationFn: (id: string) => runNow({ data: { id } }),
+    onSuccess: (r) => {
+      toast.success(`Coleta concluída: +${r.inserted} anúncios`);
+      qc.invalidateQueries({ queryKey: ["tracked_keywords"] });
+      qc.invalidateQueries({ queryKey: ["cron_runs"] });
+      qc.invalidateQueries({ queryKey: ["ads"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const rows = q.data ?? [];
 
@@ -108,12 +123,41 @@ export function KeywordsPanel() {
                   · última: {new Date(k.last_run_at).toLocaleString("pt-BR")} {k.last_inserted != null && `(+${k.last_inserted})`}
                 </span>
               )}
-              <Button size="sm" variant="ghost" className="ml-auto h-7 w-7 p-0" onClick={() => mDel.mutate(k.id)}>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="ml-auto h-7 px-2"
+                onClick={() => mRun.mutate(k.id)}
+                disabled={mRun.isPending}
+                title="Rodar coleta agora"
+              >
+                <Play className="size-3.5" />
+              </Button>
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => mDel.mutate(k.id)}>
                 <Trash2 className="size-3.5" />
               </Button>
             </li>
           ))}
         </ul>
+      )}
+
+      {(qRuns.data?.length ?? 0) > 0 && (
+        <details className="rounded border border-border/60 bg-background/30 p-2 text-xs">
+          <summary className="flex cursor-pointer items-center gap-2 text-muted-foreground">
+            <History className="size-3.5" /> Últimas execuções ({qRuns.data!.length})
+          </summary>
+          <ul className="mt-2 space-y-1">
+            {qRuns.data!.map((r) => (
+              <li key={r.id} className="flex items-center gap-2 font-mono text-[11px]">
+                <span className="text-muted-foreground">{new Date(r.last_run_at!).toLocaleString("pt-BR")}</span>
+                <span className="font-sans">{r.term}</span>
+                <Badge variant={r.last_status === "ok" ? "outline" : "destructive"} className="text-[10px]">
+                  {r.last_status === "ok" ? `+${r.last_inserted ?? 0}` : r.last_status}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
 
       <p className="text-[10px] text-muted-foreground/80">
