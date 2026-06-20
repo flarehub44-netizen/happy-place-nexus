@@ -63,3 +63,47 @@ export const deleteTrackedKeyword = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const runKeywordNow = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { collectAds } = await import("@/lib/collection.functions");
+    const { data: k, error } = await supabaseAdmin
+      .from("tracked_keywords").select("*").eq("id", data.id).single();
+    if (error || !k) throw new Error(error?.message ?? "Keyword não encontrada");
+    try {
+      const r = await collectAds({
+        data: {
+          source: k.source as "meta" | "tiktok",
+          query: k.term,
+          country: k.country,
+          niche: k.niche as never,
+          limit: k.limit_per_run,
+        },
+      });
+      await supabaseAdmin.from("tracked_keywords")
+        .update({ last_run_at: new Date().toISOString(), last_status: "ok", last_inserted: r.inserted })
+        .eq("id", k.id);
+      return { ok: true, inserted: r.inserted };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      await supabaseAdmin.from("tracked_keywords")
+        .update({ last_run_at: new Date().toISOString(), last_status: `error: ${msg.slice(0, 200)}` })
+        .eq("id", k.id);
+      throw new Error(msg);
+    }
+  });
+
+export const listCronRuns = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
+    .from("tracked_keywords")
+    .select("id, term, source, last_run_at, last_status, last_inserted, frequency_hours, enabled")
+    .not("last_run_at", "is", null)
+    .order("last_run_at", { ascending: false })
+    .limit(20);
+  if (error) throw new Error(error.message);
+  return data ?? [];
+});
+
