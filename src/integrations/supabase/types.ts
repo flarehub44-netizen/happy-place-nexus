@@ -351,6 +351,54 @@ export type Database = {
         }
         Relationships: []
       }
+      tracked_keywords: {
+        Row: {
+          country: string
+          created_at: string
+          enabled: boolean
+          frequency_hours: number
+          id: string
+          last_inserted: number | null
+          last_run_at: string | null
+          last_status: string | null
+          limit_per_run: number
+          niche: string
+          source: string
+          term: string
+          updated_at: string
+        }
+        Insert: {
+          country?: string
+          created_at?: string
+          enabled?: boolean
+          frequency_hours?: number
+          id?: string
+          last_inserted?: number | null
+          last_run_at?: string | null
+          last_status?: string | null
+          limit_per_run?: number
+          niche?: string
+          source?: string
+          term: string
+          updated_at?: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          enabled?: boolean
+          frequency_hours?: number
+          id?: string
+          last_inserted?: number | null
+          last_run_at?: string | null
+          last_status?: string | null
+          limit_per_run?: number
+          niche?: string
+          source?: string
+          term?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
