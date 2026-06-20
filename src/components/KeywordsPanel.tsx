@@ -123,12 +123,41 @@ export function KeywordsPanel() {
                   · última: {new Date(k.last_run_at).toLocaleString("pt-BR")} {k.last_inserted != null && `(+${k.last_inserted})`}
                 </span>
               )}
-              <Button size="sm" variant="ghost" className="ml-auto h-7 w-7 p-0" onClick={() => mDel.mutate(k.id)}>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="ml-auto h-7 px-2"
+                onClick={() => mRun.mutate(k.id)}
+                disabled={mRun.isPending}
+                title="Rodar coleta agora"
+              >
+                <Play className="size-3.5" />
+              </Button>
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => mDel.mutate(k.id)}>
                 <Trash2 className="size-3.5" />
               </Button>
             </li>
           ))}
         </ul>
+      )}
+
+      {(qRuns.data?.length ?? 0) > 0 && (
+        <details className="rounded border border-border/60 bg-background/30 p-2 text-xs">
+          <summary className="flex cursor-pointer items-center gap-2 text-muted-foreground">
+            <History className="size-3.5" /> Últimas execuções ({qRuns.data!.length})
+          </summary>
+          <ul className="mt-2 space-y-1">
+            {qRuns.data!.map((r) => (
+              <li key={r.id} className="flex items-center gap-2 font-mono text-[11px]">
+                <span className="text-muted-foreground">{new Date(r.last_run_at!).toLocaleString("pt-BR")}</span>
+                <span className="font-sans">{r.term}</span>
+                <Badge variant={r.last_status === "ok" ? "outline" : "destructive"} className="text-[10px]">
+                  {r.last_status === "ok" ? `+${r.last_inserted ?? 0}` : r.last_status}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
 
       <p className="text-[10px] text-muted-foreground/80">
