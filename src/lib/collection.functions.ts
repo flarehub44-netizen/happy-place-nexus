@@ -225,14 +225,37 @@ const ScrapeCheckoutInput = z.object({
 
 function detectPlatform(url: string): string {
   const u = url.toLowerCase();
-  if (u.includes("hotmart.com")) return "hotmart";
+  // Tier 1 — volume altíssimo
+  if (u.includes("hotmart.com") || u.includes("pay.hotmart")) return "hotmart";
   if (u.includes("kiwify.")) return "kiwify";
-  if (u.includes("monetizze.")) return "monetizze";
   if (u.includes("eduzz.") || u.includes("sun.eduzz")) return "eduzz";
-  if (u.includes("cakto.")) return "cakto";
-  if (u.includes("ticto.")) return "ticto";
-  if (u.includes("pay.kirvano")) return "kirvano";
+  if (u.includes("monetizze.")) return "monetizze";
+  // Tier 2 — volume relevante
   if (u.includes("braip.")) return "braip";
+  if (u.includes("herospark.") || u.includes("hero.spark")) return "herospark";
+  if (u.includes("perfectpay.") || u.includes("pay.perfectpay")) return "perfectpay";
+  if (u.includes("ticto.")) return "ticto";
+  if (u.includes("kirvano.") || u.includes("pay.kirvano")) return "kirvano";
+  if (u.includes("cakto.") || u.includes("pay.cakto")) return "cakto";
+  // Tier 3 — e-commerce / físicos
+  if (u.includes("yampi.")) return "yampi";
+  if (u.includes("cartpanda.")) return "cartpanda";
+  if (u.includes("infinitepay.")) return "infinitepay";
+  if (u.includes("myshopify.com") || u.includes("shopify.com")) return "shopify";
+  if (u.includes("woocommerce") || u.includes("wc-ajax")) return "woocommerce";
+  // Tier 4 — tracking (não é checkout)
+  if (u.includes("utmify.")) return "utmify";
+  // Outras do ecossistema BR
+  if (u.includes("pepper.")) return "pepper";
+  if (u.includes("lastlink.")) return "lastlink";
+  if (u.includes("greenn.")) return "greenn";
+  if (u.includes("appmax.")) return "appmax";
+  if (u.includes("vegacheckout.") || u.includes("vega.checkout")) return "vega";
+  if (u.includes("memberkit.")) return "memberkit";
+  if (u.includes("disrupty.")) return "disrupty";
+  if (u.includes("assiny.")) return "assiny";
+  if (u.includes("pagtrust.")) return "pagtrust";
+  if (u.includes("digitalmanager.guru")) return "dmg";
   return "unknown";
 }
 
