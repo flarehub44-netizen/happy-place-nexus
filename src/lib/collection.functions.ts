@@ -113,7 +113,7 @@ export const collectAds = createServerFn({ method: "POST" })
             source: `apify:${data.source}`,
             platform: data.source,
             external_id: externalId,
-            payload: raw as Record<string, unknown>,
+            payload: JSON.parse(JSON.stringify(raw)),
           })
           .select()
           .single();
