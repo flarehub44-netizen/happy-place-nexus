@@ -89,6 +89,7 @@ export const collectAds = createServerFn({ method: "POST" })
       const items = await runApifyActor(ACTORS[data.source], actorInput, token);
 
       let inserted = 0;
+      const insertedAds: Array<{ id: string; landing_url: string | null }> = [];
       for (const raw of items.slice(0, data.limit)) {
         const r = raw as Record<string, unknown>;
         const advertiserName =
