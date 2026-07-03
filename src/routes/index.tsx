@@ -66,7 +66,7 @@ function Dashboard() {
             </div>
           </div>
           <Badge variant="outline" className="font-mono text-[10px] uppercase tracking-wide">
-            modo análise — dados mockados
+            live · coleta Apify
           </Badge>
         </div>
       </header>
