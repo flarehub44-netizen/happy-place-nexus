@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { collectAds, listJobs } from "@/lib/collection.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -20,14 +21,40 @@ export function CollectionPanel() {
   const [country, setCountry] = useState("BR");
   const [niche, setNiche] = useState("outros");
   const [limit, setLimit] = useState(30);
+  const [liveTick, setLiveTick] = useState(0);
 
   const jobsQ = useQuery(
     queryOptions({
       queryKey: ["collection_jobs"],
       queryFn: () => jobsFn(),
-      refetchInterval: 5000,
     }),
   );
+
+  // Realtime: escuta jobs + ads pra atualizar feed ao vivo sem polling
+  useEffect(() => {
+    const ch = supabase
+      .channel("live-feed")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "collection_jobs" },
+        () => {
+          qc.invalidateQueries({ queryKey: ["collection_jobs"] });
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ads" },
+        () => {
+          setLiveTick((t) => t + 1);
+          qc.invalidateQueries({ queryKey: ["ads"] });
+          qc.invalidateQueries({ queryKey: ["stats"] });
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [qc]);
 
   const mut = useMutation({
     mutationFn: () => collect({ data: { source, query, country, niche: niche as never, limit } }),
@@ -43,6 +70,10 @@ export function CollectionPanel() {
       <div className="flex items-center gap-2">
         <Radio className="size-4 text-primary" />
         <h2 className="font-display text-sm font-semibold uppercase tracking-wide">Nova Coleta · Apify</h2>
+        <span className="ml-auto flex items-center gap-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+          <span className="size-1.5 rounded-full bg-[color:var(--color-signal-high)] animate-pulse" />
+          ao vivo{liveTick > 0 ? ` · ${liveTick}` : ""}
+        </span>
       </div>
 
       <div className="flex flex-wrap items-end gap-3">
@@ -99,7 +130,7 @@ export function CollectionPanel() {
       )}
       {mut.data && (
         <p className="text-xs text-[color:var(--color-signal-high)]">
-          {mut.data.inserted} anúncios coletados.
+          {mut.data.inserted} anúncios coletados · {mut.data.queued} na fila de enriquecimento.
         </p>
       )}
 

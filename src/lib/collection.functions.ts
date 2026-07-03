@@ -163,24 +163,9 @@ export const collectAds = createServerFn({ method: "POST" })
         .update({ status: "done", total_collected: inserted })
         .eq("id", job.id);
 
-      // Enriquecimento em lote: analyzeAd + scrapeLandingPage (paralelismo limitado)
-      const { analyzeAd } = await import("@/lib/ads.functions");
-      const batch = insertedAds.slice(0, 30);
-      const concurrency = 4;
-      for (let i = 0; i < batch.length; i += concurrency) {
-        const chunk = batch.slice(i, i + concurrency);
-        await Promise.allSettled(
-          chunk.map(async (a) => {
-            try { await analyzeAd({ data: { id: a.id } }); } catch {}
-            if (a.landing_url) {
-              try { await scrapeLandingPage({ data: { adId: a.id } }); } catch {}
-              try { await scrapeCheckout({ data: { adId: a.id } }); } catch {}
-            }
-          }),
-        );
-      }
+      // Enriquecimento agora é assíncrono: worker cron pega os `enrichment_status='pending'`
+      return { ok: true, jobId: job.id, inserted, queued: insertedAds.length };
 
-      return { ok: true, jobId: job.id, inserted, enriched: batch.length };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       await supabaseAdmin
