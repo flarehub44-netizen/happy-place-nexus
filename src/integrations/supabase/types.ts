@@ -89,6 +89,10 @@ export type Database = {
           cta: string | null
           days_running: number
           detected_angle: string | null
+          enrichment_attempts: number
+          enrichment_error: string | null
+          enrichment_status: string
+          enrichment_updated_at: string | null
           external_id: string | null
           first_seen_at: string
           format: Database["public"]["Enums"]["ad_format"]
@@ -122,6 +126,10 @@ export type Database = {
           cta?: string | null
           days_running?: number
           detected_angle?: string | null
+          enrichment_attempts?: number
+          enrichment_error?: string | null
+          enrichment_status?: string
+          enrichment_updated_at?: string | null
           external_id?: string | null
           first_seen_at?: string
           format?: Database["public"]["Enums"]["ad_format"]
@@ -155,6 +163,10 @@ export type Database = {
           cta?: string | null
           days_running?: number
           detected_angle?: string | null
+          enrichment_attempts?: number
+          enrichment_error?: string | null
+          enrichment_status?: string
+          enrichment_updated_at?: string | null
           external_id?: string | null
           first_seen_at?: string
           format?: Database["public"]["Enums"]["ad_format"]
