@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicCronCollectRouteImport } from './routes/api/public/cron-collect'
+import { Route as ApiPublicHooksEnrichWorkerRouteImport } from './routes/api/public/hooks/enrich-worker'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,48 @@ const ApiPublicCronCollectRoute = ApiPublicCronCollectRouteImport.update({
   path: '/api/public/cron-collect',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksEnrichWorkerRoute =
+  ApiPublicHooksEnrichWorkerRouteImport.update({
+    id: '/api/public/hooks/enrich-worker',
+    path: '/api/public/hooks/enrich-worker',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/public/cron-collect': typeof ApiPublicCronCollectRoute
+  '/api/public/hooks/enrich-worker': typeof ApiPublicHooksEnrichWorkerRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/public/cron-collect': typeof ApiPublicCronCollectRoute
+  '/api/public/hooks/enrich-worker': typeof ApiPublicHooksEnrichWorkerRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/public/cron-collect': typeof ApiPublicCronCollectRoute
+  '/api/public/hooks/enrich-worker': typeof ApiPublicHooksEnrichWorkerRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/cron-collect'
+  fullPaths:
+    | '/'
+    | '/api/public/cron-collect'
+    | '/api/public/hooks/enrich-worker'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/cron-collect'
-  id: '__root__' | '/' | '/api/public/cron-collect'
+  to: '/' | '/api/public/cron-collect' | '/api/public/hooks/enrich-worker'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/public/cron-collect'
+    | '/api/public/hooks/enrich-worker'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiPublicCronCollectRoute: typeof ApiPublicCronCollectRoute
+  ApiPublicHooksEnrichWorkerRoute: typeof ApiPublicHooksEnrichWorkerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +83,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronCollectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/enrich-worker': {
+      id: '/api/public/hooks/enrich-worker'
+      path: '/api/public/hooks/enrich-worker'
+      fullPath: '/api/public/hooks/enrich-worker'
+      preLoaderRoute: typeof ApiPublicHooksEnrichWorkerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiPublicCronCollectRoute: ApiPublicCronCollectRoute,
+  ApiPublicHooksEnrichWorkerRoute: ApiPublicHooksEnrichWorkerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
