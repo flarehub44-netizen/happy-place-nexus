@@ -94,7 +94,10 @@ export const collectAds = createServerFn({ method: "POST" })
         const r = raw as Record<string, unknown>;
         const advertiserName =
           pickString(r.page_name, r.pageName, r.advertiserName, r.brand) ?? "Desconhecido";
-        const handle = pickString(r.page_id, r.pageId, r.advertiserId);
+        // Handle sintético quando o Apify não devolve page_id — evita colisão de múltiplos NULLs no unique key
+        const handle =
+          pickString(r.page_id, r.pageId, r.advertiserId) ??
+          `synthetic:${data.source}:${advertiserName.toLowerCase().replace(/\s+/g, "-").slice(0, 60)}`;
 
         // Upsert advertiser
         const { data: adv } = await supabaseAdmin
@@ -126,22 +129,27 @@ export const collectAds = createServerFn({ method: "POST" })
         const mediaUrl = pickString(r.video_url, r.videoUrl, r.image_url, r.imageUrl);
         const thumb = pickString(r.thumbnail, r.thumbnailUrl, r.image);
 
+        // Upsert por (platform, external_id) — evita duplicar quando a mesma coleta rodar de novo
         const { data: insertedAd, error: adErr } = await supabaseAdmin
           .from("ads")
-          .insert({
-            advertiser_id: adv?.id ?? null,
-            raw_import_id: rawImport?.id ?? null,
-            platform: data.source,
-            format: mediaUrl?.includes(".mp4") ? "video" : "image",
-            niche: data.niche as Niche,
-            status: "detected",
-            headline,
-            primary_text: primaryText,
-            cta,
-            landing_url: landingUrl,
-            media_url: mediaUrl,
-            thumbnail_url: thumb,
-          })
+          .upsert(
+            {
+              advertiser_id: adv?.id ?? null,
+              raw_import_id: rawImport?.id ?? null,
+              platform: data.source,
+              external_id: externalId,
+              format: mediaUrl?.includes(".mp4") ? "video" : "image",
+              niche: data.niche as Niche,
+              status: "detected",
+              headline,
+              primary_text: primaryText,
+              cta,
+              landing_url: landingUrl,
+              media_url: mediaUrl,
+              thumbnail_url: thumb,
+            },
+            { onConflict: "platform,external_id", ignoreDuplicates: false },
+          )
           .select("id, landing_url")
           .single();
         if (!adErr && insertedAd) {
