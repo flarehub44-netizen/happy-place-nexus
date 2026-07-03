@@ -89,6 +89,7 @@ export type Database = {
           cta: string | null
           days_running: number
           detected_angle: string | null
+          external_id: string | null
           first_seen_at: string
           format: Database["public"]["Enums"]["ad_format"]
           headline: string | null
@@ -121,6 +122,7 @@ export type Database = {
           cta?: string | null
           days_running?: number
           detected_angle?: string | null
+          external_id?: string | null
           first_seen_at?: string
           format?: Database["public"]["Enums"]["ad_format"]
           headline?: string | null
@@ -153,6 +155,7 @@ export type Database = {
           cta?: string | null
           days_running?: number
           detected_angle?: string | null
+          external_id?: string | null
           first_seen_at?: string
           format?: Database["public"]["Enums"]["ad_format"]
           headline?: string | null
@@ -284,6 +287,7 @@ export type Database = {
           apify_run_id: string | null
           country: string | null
           created_at: string
+          enriched_count: number
           error_message: string | null
           id: string
           niche: string | null
@@ -297,6 +301,7 @@ export type Database = {
           apify_run_id?: string | null
           country?: string | null
           created_at?: string
+          enriched_count?: number
           error_message?: string | null
           id?: string
           niche?: string | null
@@ -310,6 +315,7 @@ export type Database = {
           apify_run_id?: string | null
           country?: string | null
           created_at?: string
+          enriched_count?: number
           error_message?: string | null
           id?: string
           niche?: string | null
